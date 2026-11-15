@@ -1,6 +1,6 @@
 {
   "name": "@k44deusz/favicon-generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Przygotowanie ikon PNG, ikon maskable i wielorozmiarowych plików ICO.",
   "type": "module",
   "exports": {

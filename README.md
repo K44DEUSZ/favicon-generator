@@ -4,14 +4,14 @@
 
 Z jednego obrazu możesz przygotować ikony PNG i plik ICO zawierający kilka rozmiarów. Biblioteka skaluje i centruje znak; dla ikon maskable pilnuje też bezpiecznego obszaru, aby narożniki nie zniknęły po nałożeniu maski.
 
-Bieżące poprawki pozostają na wersji 1.0.0 i nie stanowią nowego wydania. Publiczna paczka 1.0.0 nie jest nadpisywana; nowe możliwości opisane poniżej dotyczą aktualnego kodu repozytorium. Aby je sprawdzić przed wydaniem, uruchom `npm ci`, `npm run build`, `npm pack` i zainstaluj uzyskany plik lokalnie. Changelog pozostaje w repozytorium i nie trafia do paczki.
+Wydanie 1.0.1 zawiera poprawki po audycie i zachowuje dotychczasowe API. Changelog pozostaje w repozytorium i nie trafia do paczki.
 
 ## Jak użyć
 
 Pobierz paczkę wybranego wydania z [Releases](https://github.com/K44DEUSZ/favicon-generator/releases), a następnie zainstaluj ją w swoim projekcie:
 
 ```sh
-npm install ./k44deusz-favicon-generator-1.0.0.tgz
+npm install ./k44deusz-favicon-generator-1.0.1.tgz
 ```
 
 ```ts
@@ -32,7 +32,7 @@ const ico = await createIco([{ size: 32, blob: png }]);
 
 Bezpieczny obszar maskable to koło o średnicy 80% ikony. Biblioteka mieści w nim cały prostokąt znaku i wypełnia tło. Więcej o tej zasadzie: [ikony aplikacji w MDN](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Define_app_icons#support_masking). Archiwizowanie ZIP i generowanie interfejsu zostają po stronie aplikacji.
 
-## API i granice środowisk (1.0.0)
+## API i granice środowisk (1.0.1)
 
 Dotychczasowe importy z korzenia są zachowane. `@k44deusz/favicon-generator/core` eksportuje `iconBounds`, `createIco` i `FaviconError`, bez importowania renderera i bez typów elementów HTML. W Node.js TypeScript potrzebuje typów Node dla standardowego Blob. `/browser` eksportuje `renderIcon`, `canvasBlob` i `IconRenderOptions`; te deklaracje wymagają DOM.
 

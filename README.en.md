@@ -4,14 +4,14 @@
 
 Create PNG icons and a multi-size ICO file from an image. The library scales and centers the artwork. For maskable icons it also keeps the artwork inside the safe area, including its corners.
 
-The current changes remain at version 1.0.0 and are not a new release. The public 1.0.0 archive is not overwritten; the additions below describe the current repository source. To try them before publication, run `npm ci`, `npm run build`, `npm pack`, and install the resulting file locally. The changelog stays in the repository and is excluded from the package.
+Release 1.0.1 includes the audit fixes and preserves the existing API. The changelog stays in the repository and is excluded from the package.
 
 ## Usage
 
 Download the package for your chosen version from [Releases](https://github.com/K44DEUSZ/favicon-generator/releases), then install it in your project:
 
 ```sh
-npm install ./k44deusz-favicon-generator-1.0.0.tgz
+npm install ./k44deusz-favicon-generator-1.0.1.tgz
 ```
 
 ```ts
@@ -32,7 +32,7 @@ const ico = await createIco([{ size: 32, blob: png }]);
 
 The maskable safe area is a circle with a diameter of 80% of the icon. The library fits the complete artwork rectangle inside it and fills the background. See [MDN's app icon guide](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Define_app_icons#support_masking). ZIP packaging and the interface belong to the consuming application.
 
-## API and environment boundaries (1.0.0)
+## API and environment boundaries (1.0.1)
 
 Existing root imports remain supported. `@k44deusz/favicon-generator/core` exports `iconBounds`, `createIco`, and `FaviconError` without importing the renderer or HTML element types. Node.js TypeScript consumers need Node types for the standard Blob API. `/browser` exports `renderIcon`, `canvasBlob`, and `IconRenderOptions`; these declarations require DOM types.
 
