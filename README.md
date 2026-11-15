@@ -9,7 +9,7 @@ Z jednego obrazu możesz przygotować ikony PNG i plik ICO zawierający kilka ro
 Pobierz paczkę wybranego wydania z [Releases](https://github.com/K44DEUSZ/favicon-generator/releases), a następnie zainstaluj ją w swoim projekcie:
 
 ```sh
-npm install ./k44deusz-favicon-generator-1.0.0.tgz
+npm install ./k44deusz-favicon-generator-1.1.0.tgz
 ```
 
 ```ts
@@ -30,6 +30,36 @@ const ico = await createIco([{ size: 32, blob: png }]);
 
 Bezpieczny obszar maskable to koło o średnicy 80% ikony. Biblioteka mieści w nim cały prostokąt znaku i wypełnia tło. Więcej o tej zasadzie: [ikony aplikacji w MDN](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Define_app_icons#support_masking). Archiwizowanie ZIP i generowanie interfejsu zostają po stronie aplikacji.
 
+## API i granice środowisk (1.1.0)
+
+Dotychczasowe importy z korzenia są zachowane. `@k44deusz/favicon-generator/core` eksportuje `iconBounds`, `createIco` i `FaviconError`, bez importowania renderera i bez typów elementów HTML. W Node.js TypeScript potrzebuje typów Node dla standardowego Blob. `/browser` eksportuje `renderIcon`, `canvasBlob` i `IconRenderOptions`; te deklaracje wymagają DOM.
+
+| Funkcja                                                      | Kontrakt                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iconBounds(width,height,size,scale,maskable?)`              | Dodatnie skończone wymiary, całkowity size 1–4096, procent scale większy od 0 do 100, flaga boolean → wycentrowany prostokąt {x,y,width,height}. Maskable mieści wszystkie narożniki w bezpiecznym kole.                                              |
+| `createIco(entries)`                                         | 1–16 pozycji {size,blob}, różne całkowite size 1–256; każda blob to PNG do 2 MiB z odpowiadającym kwadratowym IHDR → Promise<Blob> typu image/x-icon. Wejście jest kopiowane przed oczekiwaniem na bajty, więc zmiany tablicy nie psują katalogu ICO. |
+| `renderIcon(image,size,scale,background,maskable?,options?)` | Odczytany HTMLImageElement z niezerowymi wymiarami; kolor CSS albo null → Promise<Blob> PNG. Rozmiar i skala jak w iconBounds.                                                                                                                        |
+| `canvasBlob(canvas,options?)`                                | HTMLCanvasElement → Promise<Blob> PNG; błąd lub pusty wynik nie są sukcesem.                                                                                                                                                                          |
+
+`IconRenderOptions` zawiera opcjonalny AbortSignal `signal` i dodatni całkowity `maxPixels`, sprawdzany dla powierzchni wynikowej. Bez opcji zachowany jest limit size 4096 (do 16 777 216 pikseli). Anulowanie odrzuca wynik kodem aborted; natywna operacja kodowania może dokończyć się w tle. Biblioteka zwalnia własne płótno, ale nie zarządza obrazem ani URL przekazanym przez odbiorcę. Odbiorca ładuje obraz, ogranicza bajty i rozmiar dekodowanego źródła, zwalnia swoje object URL oraz URL pobieranych wyników. Zdalny obraz musi być odczytany z właściwym crossOrigin i zgodą CORS serwera. Biblioteka nie obchodzi ograniczeń Canvas.
+
+`createIco` sprawdza sygnaturę PNG, IHDR i wymiary; nie jest pełnym dekoderem PNG. Do prawidłowego ICO dostarczaj rzeczywiste, poprawne PNG, np. z renderIcon. API normalizuje nieprawidłowe wejścia JS i błędy odczytu do `FaviconError`. Kody: invalid_image, invalid_options, browser_required, canvas_unavailable, encoding_failed, invalid_ico, canvas_security, aborted.
+
+Dla maskable null oznacza czarne tło, a podany kolor jest używany jako tło. Wybierz nieprzezroczysty kolor, jeśli ikona ma mieć pełne tło. PNG może zachować przezroczystość zwykłej ikony. Eksport jest rastrowy: animacje, warstwy SVG i metadane źródła nie są zachowywane, a orientacja/kolory dekodowania zależą od przeglądarki.
+
+```ts
+import { createIco } from "@k44deusz/favicon-generator/core";
+import { renderIcon } from "@k44deusz/favicon-generator/browser";
+
+const controller = new AbortController();
+// image is a decoded HTMLImageElement owned by this application.
+const png = await renderIcon(image, 32, 78, null, false, {
+  signal: controller.signal,
+  maxPixels: 512 * 512,
+});
+const ico = await createIco([{ size: 32, blob: png }]);
+```
+
 ## Praca z kodem
 
 Do pracy nad biblioteką użyj Node.js 24. Kod jest w TypeScript; wydania zawierają JavaScript ESM i deklaracje typów.
@@ -38,9 +68,14 @@ Do pracy nad biblioteką użyj Node.js 24. Kod jest w TypeScript; wydania zawier
 npm ci
 npm run check
 npm test
+npx playwright install chromium firefox webkit
+npm run test:browser
+npm run check:package
 ```
 
 Push na `main` uruchamia sprawdzenie kodu i testy. Wydanie publikuję osobno przez GitHub Actions, z numerem zapisanym w `package.json`. Automat nie zmienia tego numeru ani nie nadpisuje istniejącego wydania. Opublikowana paczka trafia do narzędzi na stronie po przejściu ich kontroli.
+
+Testy przeglądarkowe domyślnie sprawdzają Chromium, Firefox i WebKit. Zmienna środowiskowa BROWSERS pozwala wybrać podzbiór, np. chromium. Próby używają lokalnych fixture i nie wywołują publicznej strony z narzędziami.
 
 ## Licencja
 
