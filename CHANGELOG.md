@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased 1.1.0
+## Unreleased
 
 - Add Node-compatible `/core` and DOM-based `/browser` entry points while preserving root exports and existing call signatures.
 - Validate untyped inputs and snapshot ICO entries before asynchronous work. Add optional render cancellation and pixel budgets.
